@@ -1,18 +1,28 @@
 from pydantic import BaseModel, Field
+from enum import Enum
 
 
 class Connection(BaseModel):
     target: str
     max_link_capacity: int = 1
 
+
+class ZoneType(str, Enum):
+    NORMAL = "normal"
+    BLOCKED = "blocked"
+    RESTRICTED = "restricted"
+    PRIORITY = "priority"
+
+
 class Zone(BaseModel):
     name: str
     x: int
     y: int
     color: str = "white"
-    zone_type: str = "normal"
+    zone_type: ZoneType = ZoneType.NORMAL
     max_drones: float = float('inf')
     connections: list[Connection] = Field(default_factory=list)
+
 
 class NetworkGraph(BaseModel):
     zones: dict[str, Zone] = Field(default_factory=dict)

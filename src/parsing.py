@@ -4,6 +4,7 @@ import sys
 from .network_graph import Zone, Connection, NetworkGraph
 from pathlib import Path
 
+
 def parse_arg() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fly-in Drone Simulator")
     parser.add_argument("--path_map", type=str, default="maps/easy/01_linear_path.txt")
@@ -12,6 +13,7 @@ def parse_arg() -> argparse.Namespace:
         return parser.parse_args()
     except SystemExit as e:
         sys.exit(f"Invalid argument terminal: {e}")
+
 
 def get_lines(file_path: str) -> list[str]:
     path = Path(file_path)
@@ -25,6 +27,7 @@ def get_lines(file_path: str) -> list[str]:
                 continue
             valid_lines.append(line_clean)
     return valid_lines
+
 
 def parse_zone(key: str, value: str) -> Zone:
     value = value.strip()
