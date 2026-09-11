@@ -29,3 +29,12 @@ class NetworkGraph(BaseModel):
     nb_drones: int = 0
     start_node: str = ""
     end_node: str = ""
+
+    def get_zone(self, name: str) -> Zone:
+        ...
+
+    def neighbors(self, zone_name: str) -> list[Connection]:
+        ...
+
+    def is_valid_connection(self, a: str, b: str) -> bool:
+        ...
