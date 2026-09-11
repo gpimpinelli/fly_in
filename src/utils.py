@@ -27,8 +27,7 @@ def get_lines(file_path: str) -> list[str]:
             valid_lines.append(line_clean)
     return valid_lines
 
-
-def get_info_zone(lines: list[str]): # -> dict[Zone]:
+def get_info_zones(lines: list[str]): # -> dict[Zone]:
     info = []
     i = 0
     while(not lines[i].startswith("start_hub:")):
