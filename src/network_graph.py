@@ -4,7 +4,7 @@ from enum import Enum
 
 class Connection(BaseModel):
     target: str
-    max_link_capacity: int = 1
+    max_link_capacity: int = Field(default=1, gt=0)
 
 
 class ZoneType(str, Enum):
@@ -20,7 +20,7 @@ class Zone(BaseModel):
     y: int
     color: str = "white"
     zone_type: ZoneType = ZoneType.NORMAL
-    max_drones: float = float('inf')
+    max_drones: int = Field(default=1, gt=0)
     connections: list[Connection] = Field(default_factory=list)
 
 

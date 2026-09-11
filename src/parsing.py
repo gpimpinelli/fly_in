@@ -1,9 +1,8 @@
 import argparse
 import re
 import sys
-from .network_graph import Zone, Connection, NetworkGraph
+from .network_graph import Zone, ZoneType, Connection, NetworkGraph
 from pathlib import Path
-
 
 def parse_arg() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fly-in Drone Simulator")
@@ -31,29 +30,24 @@ def get_lines(file_path: str) -> list[str]:
 
 def parse_zone(key: str, value: str) -> Zone:
     value = value.strip()
-    metadata = {}
+    metadata: dict[str, str] = {}
     match = re.search(r'\[(.*?)\]$', value)
 
     if match:
         meta_str = match.group(1).strip()
         if not meta_str or "[" in meta_str or "]" in meta_str:
             raise ValueError(f"Syntax bracket error: '{value}'")
-            
+
         for pair in meta_str.split():
             if "=" not in pair:
                 raise ValueError(f"Attribute invalid: '{pair}'")
             m_key, m_val = pair.split("=", 1)
-            
-            if m_key not in ['color', 'zone', 'max_drones']:
+
+            if m_key not in ('color', 'zone', 'max_drones'):
                 raise ValueError(f"Invalid key: '{m_key}'")
-                
-            # Validazione specifica per "zone" e "max_drones"
-            if m_key == 'zone' and m_val not in ['normal', 'blocked', 'restricted', 'priority']:
-                raise ValueError(f"Invalid zone type: '{m_val}'")
-            if m_key == 'max_drones':
-                if not m_val.isdigit() or int(m_val) < 1:
-                    raise ValueError(f"max_drones must be a positive integer: '{m_val}'")
-                
+            if m_key in metadata:
+                raise ValueError(f"Duplicate attribute: '{m_key}'")
+
             metadata[m_key] = m_val
 
         value = value[:match.start()].strip()
@@ -63,18 +57,26 @@ def parse_zone(key: str, value: str) -> Zone:
         raise ValueError(f"Invalid number of param: '{value}'")
 
     name, x_str, y_str = base_parts
-    
-    if "#" in name:
-        raise ValueError("Error: name contains '#'")
+
+    if "#" in name or "-" in name:
+        raise ValueError(f"Invalid zone name: '{name}'")
 
     try:
         x_int = int(x_str)
         y_int = int(y_str)
-    except ValueError:
-        raise ValueError("Error: x e y is not int")  
-        
-    return Zone(name=name, x=x_int, y=y_int, zone_type=key, **metadata)
+    except ValueError as e:
+        raise ValueError("Error: x and y must be integers") from e
 
+    zone_type_str = metadata.pop('zone', 'normal')
+    if key in ("start_hub", "end_hub"):
+        metadata.pop("max_drones", None)
+
+    try:
+        zone_type = ZoneType(zone_type_str)
+    except ValueError as e:
+        raise ValueError(f"Invalid zone type: '{zone_type_str}'") from e
+
+    return Zone(name=name, x=x_int, y=y_int, zone_type=zone_type, **metadata)
 
 def parse_connection(value: str, graph: 'NetworkGraph') -> None:
     value = value.strip()
