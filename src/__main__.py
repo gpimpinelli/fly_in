@@ -1,10 +1,12 @@
-from .parsing import parse_arg, get_lines, build_network
+from .map_parser import MapParser, parse_arg
 
 
 def main():
     args = parse_arg()
-    txt = get_lines(args.path_map)
-    print(repr(build_network(txt)))
+    parser = MapParser(args.path_map)
+    graph = parser.build_graph()
+    print(graph)
+    
 
 if __name__ == "__main__":
     main()
