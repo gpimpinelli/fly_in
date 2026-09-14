@@ -47,7 +47,6 @@ class Drone:
         if self.is_in_transit():
             return f"{self.current_zone}_{self.target_zone}"
         return None
-        
 
     def move_instant(self, target: str) -> None:
         """Move directly to an adjacent zone costing exactly 1 turn."""

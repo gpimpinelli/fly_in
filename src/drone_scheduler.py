@@ -66,5 +66,4 @@ class DroneScheduler:
 
             last_zone, last_turn = path[-1]
             self.occupancy.reserve_zone(last_zone, last_turn)
-
         return plan

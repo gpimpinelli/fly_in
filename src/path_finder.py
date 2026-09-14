@@ -7,7 +7,6 @@ class Pathfinder:
     def __init__(self, graph: NetworkGraph) -> None:
         self.graph = graph
 
-
     def find_path(
         self, start: str, goal: str, start_turn: int, occupancy: OccupancyTracker
     ) -> list[tuple[str, int]] | None:
