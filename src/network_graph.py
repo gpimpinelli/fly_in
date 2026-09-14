@@ -53,7 +53,7 @@ class Zone(BaseModel):
     
     def get_connection_to(self, target_name: str) -> Connection | None:
         """Return the connection to a given target zone, if any."""
-        for c in self.collections:
+        for c in self.connections:
             if c.leads_to(target_name):
                 return c
         return None
@@ -71,7 +71,7 @@ class NetworkGraph(BaseModel):
         return self.zones[name]
 
     def neighbors(self, zone_name: str) -> list[Connection]:
-        return self.get_zone(zone_name).collections
+        return self.get_zone(zone_name).connections
 
     def get_connection(self, a: str, b: str) -> Connection | None:
         return self.get_zone(a).get_connection_to(b)

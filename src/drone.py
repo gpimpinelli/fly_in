@@ -7,6 +7,7 @@ class Drone:
 
     id: str
     current_zone: str
+    path: list[str]
     in_transit_turns: int = 0
     is_delivered: bool = False
     target_zone: str | None = None
@@ -23,14 +24,14 @@ class Drone:
     def start_transit(self, target: str, turns: int) -> None:
         """Begin a multi-turn move toward a restricted zone."""
         if self.is_in_transit():
-            raise ValueError(f"Drone {self.drone_id} is already in transit.")
+            raise ValueError(f"Drone {self.id} is already in transit.")
         self.target_zone = target
         self.in_transit_turns = turns
 
     def tick_transit(self) -> None:
         """Advance transit by one turn."""
         if not self.is_in_transit():
-            raise ValueError(f"Drone {self.drone_id} is not in transit.")
+            raise ValueError(f"Drone {self.id} is not in transit.")
         self.in_transit_turns -= 1
         if self.in_transit_turns == 0:
             self._complete_transit()
@@ -51,7 +52,7 @@ class Drone:
     def move_instant(self, target: str) -> None:
         """Move directly to an adjacent zone costing exactly 1 turn."""
         if self.is_in_transit():
-            raise ValueError(f"Drone {self.drone_id} is currently in transit.")
+            raise ValueError(f"Drone {self.id} is currently in transit.")
         self.current_zone = target
         self.path.append(target)
 
@@ -59,7 +60,7 @@ class Drone:
         """Mark the drone as delivered upon reaching the end zone."""
         if self.current_zone != end_zone:
             raise ValueError(
-                f"Drone {self.drone_id} cannot be delivered: "
+                f"Drone {self.id} cannot be delivered: "
                 f"not at end zone (at '{self.current_zone}')"
             )
         self.is_delivered = True
