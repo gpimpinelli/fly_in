@@ -1,3 +1,6 @@
+from .drone import Drone
+
+
 class Visualizer:
     """Renders the simulation state, either as colored terminal
     output or as a graphical view."""

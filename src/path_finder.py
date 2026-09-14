@@ -1,5 +1,6 @@
 import heapq
-
+from .network_graph import NetworkGraph
+from .occupancy_tracker import OccupancyTracker
 
 class Pathfinder:
 
@@ -35,7 +36,7 @@ class Pathfinder:
                 target_name = conn.target
                 target_zone = self.graph.get_zone(target_name)
 
-                if target_name.is_blocked():
+                if target_zone.is_blocked():
                     continue
 
                 arrival_turn = turn + target_zone.movement_cost()
