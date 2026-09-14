@@ -13,5 +13,10 @@ def main() -> None:
     turn_log = sim.run()
     print(f"\nSimulation complete in {len(turn_log)} turns.")
 
+    if args.visual:
+        from .visualizer import Visualizer
+        vis = Visualizer(sim.graph, sim.master_plan)
+        vis.run()
+
 if __name__ == "__main__":
     main()
