@@ -3,17 +3,12 @@ import random
 from .network_graph import NetworkGraph
 
 COLORS = {
-    "RED": (255, 0, 0),
-    "GREEN": (0, 255, 0),
-    "BLUE": (0, 191, 255),
-    "YELLOW": (255, 255, 0),
-    "WHITE": (255, 255, 255),
-    "BLACK": (0, 0, 0),
-    "CYAN": (0, 255, 255),
-    "MAGENTA": (255, 0, 255),
-    "ORANGE": (255, 165, 0),
-    "GRAY": (128, 128, 128),
-    "PURPLE": (128, 0, 128),
+    "WHITE": (220, 220, 220),
+    "RED": (255, 80, 80),
+    "BLUE": (80, 160, 255),
+    "GREEN": (80, 220, 120),
+    "YELLOW": (255, 220, 50),
+    "BLACK": (180, 180, 180)
 }
 
 
