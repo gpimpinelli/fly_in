@@ -89,8 +89,26 @@ class MapParser:
         except ValueError as e:
             raise ValueError(f"Invalid zone type: '{zone_type_str}'") from e
 
+        color = metadata.get("color", "white")
+        max_drones_raw = metadata.get("max_drones")
+
+        if max_drones_raw is not None:
+            try:
+                max_drones = int(max_drones_raw)
+            except ValueError as e:
+                raise ValueError(
+                    f"max_drones must be an integer, got '{max_drones_raw}'"
+                ) from e
+        else:
+            max_drones = 1
+
         return Zone(
-            name=name, x=x_int, y=y_int, zone_type=zone_type, **metadata
+            name=name,
+            x=x_int,
+            y=y_int,
+            zone_type=zone_type,
+            max_drones=max_drones,
+            color=color,
         )
 
     def _parse_connection(self, value: str, graph: 'NetworkGraph') -> None:

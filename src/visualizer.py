@@ -31,7 +31,7 @@ class Visualizer:
             if path:
                 self.max_turn = max(self.max_turn, path[-1][1])
 
-    def _assign_drone_colors(self) -> dict[str, tuple]:
+    def _assign_drone_colors(self) -> dict[str, tuple[int, int, int]]:
         """Assegna un colore RGB univoco a ciascun drone identificato."""
         random.seed(1)
         colors = {}
