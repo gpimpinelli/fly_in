@@ -3,6 +3,7 @@ class OccupancyTracker:
     zone/connection at each simulation turn."""
 
     def __init__(self) -> None:
+        """Initialize empty occupancy tables for zones and connections."""
         self._zone_occupancy: dict[tuple[str, int], int] = {}
         self._connection_occupancy: dict[tuple[str, str, int], int] = {}
 

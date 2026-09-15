@@ -4,8 +4,15 @@ from .occupancy_tracker import OccupancyTracker
 
 
 class Pathfinder:
+    """Compute shortest collision-aware paths using
+    a time-expanded Dijkstra."""
 
     def __init__(self, graph: NetworkGraph) -> None:
+        """Initialize the Pathfinder with the network graph.
+
+        Args:
+            graph: The NetworkGraph instance describing zones and connections.
+        """
         self.graph = graph
 
     def find_path(
@@ -15,6 +22,21 @@ class Pathfinder:
         start_turn: int,
         occupancy: OccupancyTracker
     ) -> list[tuple[str, int]] | None:
+        """Find the cheapest collision-free path from start to goal.
+
+        Uses a time-expanded Dijkstra search that respects zone capacity
+        and link capacity constraints tracked in the OccupancyTracker.
+
+        Args:
+            start: Name of the starting zone.
+            goal: Name of the destination zone.
+            start_turn: Turn number at which the drone departs.
+            occupancy: Current reservation state of zones and connections.
+
+        Returns:
+            An ordered list of (zone_name, arrival_turn) pairs from start
+            to goal, or None if no valid path exists.
+        """
         visited = set()
         queue = [(0.0, start_turn, start, [(start, start_turn)])]
 
@@ -40,7 +62,7 @@ class Pathfinder:
                 target_name = conn.target
                 target_zone = self.graph.get_zone(target_name)
 
-                if target_zone.is_blocked():
+                if self.graph.is_blocked(target_name):
                     continue
 
                 arrival_turn = turn + target_zone.movement_cost()

@@ -60,6 +60,8 @@ class DroneScheduler:
                 self.occupancy.reserve_zone(curr_zone, curr_turn)
 
                 if curr_zone != next_zone:
+                    if self.graph.get_connection(curr_zone, next_zone) is None:
+                        raise ValueError("Invalid connection")
                     self.occupancy.reserve_connection(
                         curr_zone, next_zone, curr_turn + 1
                     )

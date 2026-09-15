@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 def parse_arg() -> argparse.Namespace:
+    """Parse and return command-line arguments for the simulator."""
     parser = argparse.ArgumentParser(
         description="Fly-in Drone Simulator")
     parser.add_argument(
@@ -22,13 +23,24 @@ class MapParser:
     """Parses a map file into a NetworkGraph."""
 
     def __init__(self, file_path: str) -> None:
+        """Initialize the parser with the path to the map file.
+
+        Args:
+            file_path: Relative or absolute path to the map text file.
+        """
         self.file_path = file_path
 
     def build_graph(self) -> NetworkGraph:
+        """Read the map file and return a fully constructed NetworkGraph."""
         lines = self._read_lines()
         return self._build_network(lines)
 
     def _read_lines(self) -> list[tuple[int, str]]:
+        """Read the map file and return non-empty, non-comment lines.
+
+        Returns:
+            A list of (line_number, content) tuples for valid lines.
+        """
         path = Path(self.file_path)
         if not path.exists() or not path.is_file():
             sys.exit(f"Error: Impossible to find map file '{path}'")
@@ -42,6 +54,18 @@ class MapParser:
         return valid_lines
 
     def _parse_zone(self, key: str, value: str) -> Zone:
+        """Parse a zone definition line and return a Zone object.
+
+        Args:
+            key: The line key ('start_hub', 'hub', or 'end_hub').
+            value: The raw value string following the colon separator.
+
+        Returns:
+            A validated Zone instance.
+
+        Raises:
+            ValueError: If the zone definition contains syntax errors.
+        """
         value = value.strip()
         metadata: dict[str, str] = {}
         match = re.search(r'\[(.*?)\]$', value)
@@ -112,6 +136,16 @@ class MapParser:
         )
 
     def _parse_connection(self, value: str, graph: 'NetworkGraph') -> None:
+        """Parse a connection definition and add it to the graph.
+
+        Args:
+            value: The raw value string following the 'connection:' key.
+            graph: The NetworkGraph to which the connection is added.
+
+        Raises:
+            ValueError:
+                If the connection syntax or zone references are invalid.
+        """
         value = value.strip()
         metadata: dict[str, str] = {}
 
@@ -167,6 +201,17 @@ class MapParser:
         )
 
     def _build_network(self, lines: list[tuple[int, str]]) -> NetworkGraph:
+        """Build and validate a NetworkGraph from parsed lines.
+
+        Args:
+            lines: List of (line_number, content) tuples to process.
+
+        Returns:
+            A fully populated and validated NetworkGraph.
+
+        Raises:
+            ValueError: If mandatory fields are missing or duplicated.
+        """
         graph = NetworkGraph()
         nb_drones_found = False
 

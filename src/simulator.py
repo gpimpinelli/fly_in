@@ -10,6 +10,12 @@ class Simulator:
     start to end while respecting capacity and timing rules."""
 
     def __init__(self, graph: NetworkGraph, pathfinder: Pathfinder) -> None:
+        """Initialize the Simulator, spawn drones, and prepare state.
+
+        Args:
+            graph: The parsed NetworkGraph describing the map.
+            pathfinder: A Pathfinder instance ready to compute routes.
+        """
         self.graph = graph
         self.pathfinder = pathfinder
         self.occupancy = OccupancyTracker()
@@ -54,6 +60,7 @@ class Simulator:
 
             path = self.master_plan.get(drone.id)
             if not path:
+                drone.wait()
                 continue
 
             current_step = None
@@ -71,6 +78,7 @@ class Simulator:
             next_zone, next_arr = next_step
 
             if curr_zone == next_zone:
+                drone.wait()
                 continue
 
             move_cost = next_arr - curr_turn
@@ -82,8 +90,13 @@ class Simulator:
                 moves_this_turn[drone.id] = next_zone
             else:
                 drone.start_transit(next_zone, move_cost - 1)
-                moves_this_turn[drone.id] = f"{curr_zone}-{next_zone}"
-
+                target = drone.get_action_target()
+                if target is None:
+                    raise RuntimeError(
+                        f"Drone {drone.id} started "
+                        "transit but has no action target"
+                    )
+                moves_this_turn[drone.id] = target
         line = self.format_turn_output(turn, moves_this_turn)
         if line:
             self.turn_log.append(line)
@@ -94,7 +107,16 @@ class Simulator:
         return all(d.is_delivered for d in self.drones)
 
     def format_turn_output(self, turn: int, moves: dict[str, str]) -> str:
-        """Format one turn line as per spec VII.5: 'D1-zone D2-zone ...'"""
+        """Format one turn line following the output specification.
+
+        Args:
+            turn: The current simulation turn number (unused in output).
+            moves: Mapping of drone ID to its target zone string this turn.
+
+        Returns:
+            A space-separated string of 'DroneID-zone' entries,
+            or an empty string if no moves occurred.
+        """
         if not moves:
             return ""
         return " ".join(

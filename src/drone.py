@@ -12,23 +12,31 @@ class Drone(BaseModel):
     target_zone: str | None = None
 
     def is_in_transit(self) -> bool:
-        """Check whether the drone is currently mid-flight on a
-        multi-turn connection (e.g. toward a restricted zone)."""
+        """Return True if the drone is mid-flight
+         on a multi-turn connection."""
         return self.in_transit_turns > 0
 
-    def is_idle(self) -> bool:
-        """Check whether the drone is stationary and free to move."""
-        return not self.is_in_transit() and not self.is_delivered
-
     def start_transit(self, target: str, turns: int) -> None:
-        """Begin a multi-turn move toward a restricted zone."""
+        """Begin a multi-turn move toward a restricted zone.
+
+        Args:
+            target: Name of the destination zone.
+            turns: Number of additional turns required to complete the transit.
+
+        Raises:
+            ValueError: If the drone is already in transit.
+        """
         if self.is_in_transit():
             raise ValueError(f"Drone {self.id} is already in transit.")
         self.target_zone = target
         self.in_transit_turns = turns
 
     def tick_transit(self) -> None:
-        """Advance transit by one turn."""
+        """Advance the in-flight transit counter by one turn.
+
+        Raises:
+            ValueError: If the drone is not currently in transit.
+        """
         if not self.is_in_transit():
             raise ValueError(f"Drone {self.id} is not in transit.")
         self.in_transit_turns -= 1
@@ -36,26 +44,45 @@ class Drone(BaseModel):
             self._complete_transit()
 
     def _complete_transit(self) -> None:
-        """Finalize arrival after transit ends."""
-        assert self.target_zone is not None
+        """Finalize arrival by updating current_zone once transit ends."""
+        if self.target_zone is None:
+            raise RuntimeError("Cannot complete transit: target_zone is None")
         self.current_zone = self.target_zone
         self.target_zone = None
 
     def get_action_target(self) -> str | None:
-        """Returns the target to print in this tourn."""
+        """Return the transit label for the current turn, or None.
+
+        Returns:
+            A string 'origin_destination' while in transit, or None otherwise.
+        """
         if self.is_in_transit():
             return f"{self.current_zone}_{self.target_zone}"
         return None
 
     def move_instant(self, target: str) -> None:
-        """Move directly to an adjacent zone costing exactly 1 turn."""
+        """Move directly to an adjacent zone in exactly one turn.
+
+        Args:
+            target: Name of the destination zone.
+
+        Raises:
+            ValueError: If the drone is currently in transit.
+        """
         if self.is_in_transit():
             raise ValueError(f"Drone {self.id} is currently in transit.")
         self.current_zone = target
         self.path.append(target)
 
     def deliver(self, end_zone: str) -> None:
-        """Mark the drone as delivered upon reaching the end zone."""
+        """Mark the drone as delivered upon reaching the end zone.
+
+        Args:
+            end_zone: Name of the expected destination zone.
+
+        Raises:
+            ValueError: If the drone is not currently at end_zone.
+        """
         if self.current_zone != end_zone:
             raise ValueError(
                 f"Drone {self.id} cannot be delivered: "
@@ -64,5 +91,5 @@ class Drone(BaseModel):
         self.is_delivered = True
 
     def wait(self) -> None:
-        """Record a turn spent stationary (no movement)."""
+        """Record a stationary turn by appending the current zone to path."""
         self.path.append(self.current_zone)
