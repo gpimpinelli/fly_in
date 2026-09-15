@@ -4,14 +4,19 @@ import sys
 from .network_graph import Zone, ZoneType, Connection, NetworkGraph
 from pathlib import Path
 
+
 def parse_arg() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Fly-in Drone Simulator")
-    parser.add_argument("--path_map", type=str, default="maps/easy/01_linear_path.txt")
-    parser.add_argument("--visual", action="store_true", help="Active visual mode")
+    parser = argparse.ArgumentParser(
+        description="Fly-in Drone Simulator")
+    parser.add_argument(
+        "--path_map", type=str, default="maps/easy/01_linear_path.txt")
+    parser.add_argument(
+        "--visual", action="store_true", help="Active visual mode")
     try:
         return parser.parse_args()
     except SystemExit as e:
         sys.exit(f"Invalid argument terminal: {e}")
+
 
 class MapParser:
     """Parses a map file into a NetworkGraph."""
@@ -84,7 +89,9 @@ class MapParser:
         except ValueError as e:
             raise ValueError(f"Invalid zone type: '{zone_type_str}'") from e
 
-        return Zone(name=name, x=x_int, y=y_int, zone_type=zone_type, **metadata)
+        return Zone(
+            name=name, x=x_int, y=y_int, zone_type=zone_type, **metadata
+        )
 
     def _parse_connection(self, value: str, graph: 'NetworkGraph') -> None:
         value = value.strip()
@@ -94,43 +101,52 @@ class MapParser:
         if match:
             meta_str = match.group(1).strip()
             if not meta_str or "[" in meta_str or "]" in meta_str:
-                raise ValueError(f"Syntax bracket error in connection: '{value}'")
-                
+                raise ValueError(
+                    f"Syntax bracket error in connection: '{value}'"
+                )
+
             for pair in meta_str.split():
                 if "=" not in pair:
                     raise ValueError(f"Attribute invalid: '{pair}'")
                 m_key, m_val = pair.split("=", 1)
-                
+
                 if m_key != 'max_link_capacity':
                     raise ValueError(f"Invalid connection key: '{m_key}'")
                 metadata[m_key] = m_val
-                
+
             value = value[:match.start()].strip()
 
         parts = value.split("-")
         if len(parts) != 2:
             raise ValueError(f"Invalid connection syntax: '{value}'")
-            
+
         node1, node2 = parts[0].strip(), parts[1].strip()
 
         if node1 not in graph.zones or node2 not in graph.zones:
-            raise ValueError(f"Connection links unknown zones: '{node1}' or '{node2}'")
-            
+            raise ValueError(
+                f"Connection links unknown zones: '{node1}' or '{node2}'"
+            )
+
         for conn in graph.zones[node1].connections:
             if conn.target == node2:
-                raise ValueError(f"Duplicate connection found: '{node1}-{node2}'")
+                raise ValueError(
+                    f"Duplicate connection found: '{node1}-{node2}'"
+                )
 
         try:
             capacity = int(metadata.get("max_link_capacity", 1))
         except ValueError:
             raise ValueError("max_link_capacity must be an integer")
-            
+
         if capacity < 1:
             raise ValueError("max_link_capacity must be a positive integer")
 
-        graph.zones[node1].connections.append(Connection(target=node2, max_link_capacity=capacity))
-        graph.zones[node2].connections.append(Connection(target=node1, max_link_capacity=capacity))
-
+        graph.zones[node1].connections.append(
+            Connection(target=node2, max_link_capacity=capacity)
+        )
+        graph.zones[node2].connections.append(
+            Connection(target=node1, max_link_capacity=capacity)
+        )
 
     def _build_network(self, lines: list[tuple[int, str]]) -> NetworkGraph:
         graph = NetworkGraph()
@@ -147,7 +163,9 @@ class MapParser:
                 if key in ("start_hub", "hub", "end_hub"):
                     new_zone = self._parse_zone(key, value)
                     if new_zone.name in graph.zones:
-                        raise ValueError(f"Duplicate zone name found: '{new_zone.name}'")
+                        raise ValueError(
+                            f"Duplicate zone name found: '{new_zone.name}'"
+                        )
 
                     if key == "start_hub":
                         if graph.start_node:
@@ -166,7 +184,9 @@ class MapParser:
                 elif key == "nb_drones":
                     val_clean = value.strip()
                     if not val_clean.isdigit() or int(val_clean) < 1:
-                        raise ValueError("nb_drones must be a positive integer")
+                        raise ValueError(
+                            "nb_drones must be a positive integer"
+                        )
                     graph.nb_drones = int(val_clean)
                     nb_drones_found = True
 

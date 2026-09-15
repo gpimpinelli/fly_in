@@ -97,4 +97,5 @@ class Simulator:
         """Format one turn line as per spec VII.5: 'D1-zone D2-zone ...'"""
         if not moves:
             return ""
-        return " ".join(f"{drone_id}-{target}" for drone_id, target in moves.items())
+        return " ".join(
+            f"{drone_id}-{target}" for drone_id, target in moves.items())

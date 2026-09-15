@@ -11,6 +11,7 @@ class Connection(BaseModel):
         """Check whether this connection leads to the given zone."""
         return self.target == zone_name
 
+
 class ZoneType(str, Enum):
     """Reppresent the type of zone."""
     NORMAL = "normal"
@@ -34,7 +35,7 @@ class Zone(BaseModel):
 
     def is_restricted(self) -> bool:
         return self.zone_type == ZoneType.RESTRICTED
-    
+
     def is_priority(self) -> bool:
         return self.zone_type == ZoneType.PRIORITY
 
@@ -50,7 +51,6 @@ class Zone(BaseModel):
             return 0.1
         return 1.0
 
-    
     def get_connection_to(self, target_name: str) -> Connection | None:
         """Return the connection to a given target zone, if any."""
         for c in self.connections:
@@ -77,16 +77,16 @@ class NetworkGraph(BaseModel):
         return self.get_zone(a).get_connection_to(b)
 
     def is_valid_connection(self, a: str, b: str) -> bool:
-        return self.get_zone(a).get_connection_to(b)
-    
+        return isinstance(self.get_zone(a).get_connection_to(b), Connection)
+
     def has_capacity(self, zone_name: str, current_occupancy: int) -> bool:
         if self.is_start_or_end(zone_name):
             return True
-        return current_occupancy < self.get_zone(zone_name).max_drones       
-    
+        return current_occupancy < self.get_zone(zone_name).max_drones
+
     def is_blocked(self, zone_name: str) -> bool:
         """Check whether a zone is of type BLOCKED (cannot be entered)."""
         return self.get_zone(zone_name).is_blocked()
-    
+
     def is_start_or_end(self, zone_name: str) -> bool:
         return zone_name in (self.start_node, self.end_node)

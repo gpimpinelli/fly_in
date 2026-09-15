@@ -18,5 +18,6 @@ def main() -> None:
         vis = Visualizer(sim.graph, sim.master_plan)
         vis.run()
 
+
 if __name__ == "__main__":
     main()

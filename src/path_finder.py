@@ -2,13 +2,18 @@ import heapq
 from .network_graph import NetworkGraph
 from .occupancy_tracker import OccupancyTracker
 
+
 class Pathfinder:
 
     def __init__(self, graph: NetworkGraph) -> None:
         self.graph = graph
 
     def find_path(
-        self, start: str, goal: str, start_turn: int, occupancy: OccupancyTracker
+        self,
+        start: str,
+        goal: str,
+        start_turn: int,
+        occupancy: OccupancyTracker
     ) -> list[tuple[str, int]] | None:
         visited = set()
         queue = [(0.0, start_turn, start, [(start, start_turn)])]
@@ -43,15 +48,22 @@ class Pathfinder:
                 new_path = path + [(target_name, arrival_turn)]
 
                 transit_turn = turn + 1
-                drones_in_transit = occupancy.connection_count_at(node, target_name, transit_turn)
+                drones_in_transit = occupancy.connection_count_at(
+                    node, target_name, transit_turn
+                )
                 if drones_in_transit >= conn.max_link_capacity:
                     continue
 
-                target_future_occupancy = occupancy.zone_count_at(target_name, arrival_turn)
-                if not self.graph.has_capacity(target_name, target_future_occupancy):
+                target_future_occupancy = occupancy.zone_count_at(
+                    target_name, arrival_turn
+                )
+                if not self.graph.has_capacity(
+                    target_name, target_future_occupancy
+                ):
                     continue
 
                 new_path = path + [(target_name, arrival_turn)]
-                heapq.heappush(queue, (new_cost, arrival_turn, target_name, new_path))
+                heapq.heappush(
+                    queue, (new_cost, arrival_turn, target_name, new_path))
 
         return None
