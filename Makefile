@@ -10,7 +10,8 @@ debug:
 	uv run python -m pdb -m src
 
 clean:
-	rm -rf */__pycache__ */.mypy_cache data/output/
+	rm -rf */__pycache__ */.mypy_cache
+	rm -rf .mypy_cache/ __pycache__
 	uv cache clean
 
 lint:
