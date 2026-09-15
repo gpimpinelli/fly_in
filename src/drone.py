@@ -1,13 +1,12 @@
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
 
 
-@dataclass
-class Drone:
+class Drone(BaseModel):
     """Represents a single drone navigating the zone network."""
 
     id: str
     current_zone: str
-    path: list[str]
+    path: list[str] = Field(default_factory=list)
     in_transit_turns: int = 0
     is_delivered: bool = False
     target_zone: str | None = None
@@ -42,7 +41,7 @@ class Drone:
         self.current_zone = self.target_zone
         self.target_zone = None
 
-    def get_action_target(self):
+    def get_action_target(self) -> str | None:
         """Returns the target to print in this tourn."""
         if self.is_in_transit():
             return f"{self.current_zone}_{self.target_zone}"
